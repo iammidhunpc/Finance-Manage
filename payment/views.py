@@ -7,7 +7,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from django.views import View
 from .models import Invoice
-import requests
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -48,7 +47,6 @@ class CreateCheckoutSessionView(View):
                         'unit_amount': invoice.amount,
                         'product_data': {
                             'name': invoice.invoice_id,
-                            # 'images': ['https://i.imgur.com/EHyR2nP.png'],
                         },
                     },
                     'quantity': 1,
@@ -74,7 +72,6 @@ def stripe_webhook(request):
     payload = request.body
     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
     event = None
-
     try:
         event = stripe.Webhook.construct_event(
             payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
@@ -130,17 +127,38 @@ class StripeIntentView(View):
     def post(self, request, *args, **kwargs):
         try:
             req_json = json.loads(request.body)
-            customer = stripe.Customer.create(email=req_json['email'])
+            customer = stripe.Customer.create(email=req_json['email'],
+              name='Test user',
+              address={
+                'line1': '510 Townsend St',
+                'postal_code': '98140',
+                'city': 'San Francisco',
+                'state': 'CA',
+                'country': 'US',
+              },
+            )
             slug = self.kwargs["uidb64"]
             invoice = Invoice.objects.get(slug=slug)
             intent = stripe.PaymentIntent.create(
                 amount=invoice.amount,
                 currency='usd',
                 customer=customer['id'],
+                description='Software development services',
+                payment_method_types=['card'],
                 metadata={
                     "invoice_id": invoice.invoice_id
-                }
-            )
+                },
+                shipping={
+                    'name': 'Test User',
+                    'address': {
+                      'line1': '510 Townsend St',
+                      'postal_code': '98140',
+                      'city': 'San Francisco',
+                      'state': 'CA',
+                      'country': 'US',
+                    },
+                  },
+                )
             return JsonResponse({
                 'clientSecret': intent['client_secret']
             })

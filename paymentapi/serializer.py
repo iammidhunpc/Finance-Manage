@@ -1,12 +1,15 @@
+import uuid
+import requests
+from django.utils.text import slugify
 from rest_framework import serializers
 from payment.models import Invoice
-import uuid
-from django.utils.text import slugify
-import requests
 
 # Creating short link for payment
 def create_short_link(self,request, slug):
-    domain = request.scheme + "://" + request.META['HTTP_HOST']
+    try:
+        domain = request.scheme + "://" + request.META['HTTP_HOST']
+    except:
+        domain = 'http://127.0.0.1:8000'
     header = {
         "Authorization": "Bearer fb89bf0ea1bee03de72dad0a93469d1c5622511b",
         "Content-Type": "application/json"
