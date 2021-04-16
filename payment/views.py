@@ -20,56 +20,12 @@ class CancelView(TemplateView):
     template_name = "cancel.html"
 
 
-class ProductLandingPageView(TemplateView):
-    template_name = "landing.html"
-
-    def get_context_data(self, **kwargs):
-        invoice = Invoice.objects.all()
-
-        context = super(ProductLandingPageView, self).get_context_data(**kwargs)
-        context.update({
-            "invoice": invoice,
-            "STRIPE_PUBLIC_KEY": settings.STRIPE_PUBLIC_KEY
-        })
-        return context
-
-
-class GenerateUrlView(TemplateView):
-    template_name = "generateurl.html"
-
-    def get_context_data(self, **kwargs):
-        invoice_id = self.kwargs["pk"]
-        invoice = Invoice.objects.get(invoice_id=invoice_id)
-        domain = self.request.scheme + "://" + self.request.META['HTTP_HOST']
-        header = {
-            "Authorization": "Bearer fb89bf0ea1bee03de72dad0a93469d1c5622511b",
-            "Content-Type": "application/json"
-        }
-        long_url = domain + "/proceed-to-pay/" + invoice_id + "/"
-        params = {
-            "long_url": long_url
-        }
-        response = requests.post("https://api-ssl.bitly.com/v4/shorten", json=params, headers=header)
-        data = response.json()
-        if 'link' in data.keys():
-            short_link = data['link']
-        else:
-            short_link = None
-
-        context = super(GenerateUrlView, self).get_context_data(**kwargs)
-        context.update({
-            "invoice": invoice,
-            "short_link": short_link
-        })
-        return context
-
-
 class ProceedToPayView(TemplateView):
     template_name = "proceedtopay.html"
 
     def get_context_data(self, **kwargs):
-        invoice_id = self.kwargs["pk"]
-        invoice = Invoice.objects.get(invoice_id=invoice_id)
+        slug = self.kwargs["uidb64"]
+        invoice = Invoice.objects.get(slug=slug)
         context = super(ProceedToPayView, self).get_context_data(**kwargs)
         context.update({
             "invoice": invoice,
@@ -80,8 +36,8 @@ class ProceedToPayView(TemplateView):
 
 class CreateCheckoutSessionView(View):
     def post(self, request, *args, **kwargs):
-        invoice_id = self.kwargs["pk"]
-        invoice = Invoice.objects.get(invoice_id=invoice_id)
+        slug = self.kwargs["uidb64"]
+        invoice = Invoice.objects.get(slug=slug)
         YOUR_DOMAIN = self.request.scheme + "://" + self.request.META['HTTP_HOST']
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
@@ -105,6 +61,9 @@ class CreateCheckoutSessionView(View):
             success_url=YOUR_DOMAIN + '/success/',
             cancel_url=YOUR_DOMAIN + '/cancel/',
         )
+        # setting invoice as closed
+        invoice.closed = True
+        invoice.save()
         return JsonResponse({
             'id': checkout_session.id
         })
@@ -112,7 +71,6 @@ class CreateCheckoutSessionView(View):
 
 @csrf_exempt
 def stripe_webhook(request):
-    import pdb;pdb.set_trace()
     payload = request.body
     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
     event = None
@@ -170,12 +128,11 @@ def stripe_webhook(request):
 
 class StripeIntentView(View):
     def post(self, request, *args, **kwargs):
-        import pdb;pdb.set_trace()
         try:
             req_json = json.loads(request.body)
             customer = stripe.Customer.create(email=req_json['email'])
-            invoice_id = self.kwargs["pk"]
-            invoice = Invoice.objects.get(invoice_id=invoice_id)
+            slug = self.kwargs["uidb64"]
+            invoice = Invoice.objects.get(slug=slug)
             intent = stripe.PaymentIntent.create(
                 amount=invoice.amount,
                 currency='usd',

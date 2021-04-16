@@ -1,7 +1,7 @@
 from django.urls import include, path
 from django.conf.urls import url
 
-from .views import InvoiceViewSet
+from .views import InvoiceViewSet,UserDetailView
 
 from rest_framework import routers
 
@@ -11,5 +11,8 @@ router.register(r'invoices', InvoiceViewSet, basename='invoices')
 
 urlpatterns = [
     url(r'^', include(router.urls)),
+    path('get-user-token/', UserDetailView.as_view(),name='get-user-token'),
 
 ]
+
+

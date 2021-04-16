@@ -19,17 +19,16 @@ Install project dependencies:
 Then simply apply the migrations:
 
     $ python manage.py migrate
-    use same databse to use admin token
 
 To create new superuser:
 
     $ python manage.py createsuperuser
-    create admin token using the admin panel for accessing the apis.
 
 You can now run the development server:
 
     $ python manage.py runserver
-    
+    Access the apis by login as superuser
+
 ### Main features
 
 * Financial department owner/head can add/update an invoice record.

@@ -46,7 +46,7 @@
       var stripe = Stripe("{{ STRIPE_PUBLIC_KEY }}");
       var checkoutButton = document.getElementById("checkout-button");
       checkoutButton.addEventListener("click", function () {
-        fetch("{% url 'create-checkout-session' invoice.invoice_id %}", {
+        fetch("{% url 'create-checkout-session' invoice.slug %}", {
           method: "POST",
           headers: {
               'X-CSRFToken': csrftoken
@@ -103,7 +103,7 @@
       form.addEventListener("submit", function(event) {
         event.preventDefault();
         // Complete payment when the submit button is clicked
-        fetch("{% url 'create-payment-intent' invoice.invoice_id %}", {
+        fetch("{% url 'create-payment-intent' invoice.slug %}", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

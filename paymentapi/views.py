@@ -6,54 +6,31 @@ from .serializer import InvoiceSerializer
 from django.http import JsonResponse
 import stripe
 import requests
+from django.contrib.auth import authenticate
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.authentication import TokenAuthentication, BasicAuthentication
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 import uuid
 from django.utils.text import slugify
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
-
-
-# Creating short link for payment
-def create_short_link(self, invoice_id):
-    domain = self.request.scheme + "://" + self.request.META['HTTP_HOST']
-    header = {
-        "Authorization": "Bearer fb89bf0ea1bee03de72dad0a93469d1c5622511b",
-        "Content-Type": "application/json"
-    }
-    long_url = domain + "/proceed-to-pay/" + invoice_id + "/"
-    params = {
-        "long_url": long_url
-    }
-    response = requests.post("https://api-ssl.bitly.com/v4/shorten", json=params, headers=header)
-    data = response.json()
-    if 'link' in data.keys():
-        short_link = data['link']
-    else:
-        short_link = None
-    return short_link
-
 
 # Invoice creation view with payment link
 class InvoiceViewSet(ModelViewSet):
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
     permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
-
-    def perform_create(self, serializer):
-        try:
-            invoice_id = serializer.validated_data.get('invoice_id')
-            short_link = create_short_link(self, invoice_id)
-            serializer.save(short_link=short_link)
-        except:
-            short_link = None
-            serializer.save(short_link=short_link)
+    authentication_classes = ( BasicAuthentication, TokenAuthentication)
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        context ={
+            'request': request
+        }
+        serializer = self.get_serializer(data=request.data,context=context)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -64,44 +41,28 @@ class InvoiceViewSet(ModelViewSet):
         data['response'] = serializer.data
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
-# class CheckoutViewSet(ModelViewSet):
-#     queryset = Invoice.objects.all()
-#     serializer_class = InvoiceSerializer
-#     # permission_classes = [IsAdminUser]
+class UserDetailView(APIView):
+    def get(self, request,*args,**kwargs):
+        username =   request.GET.get('username')
+        password =  request.GET.get('password')
+        if not username:
+            return Response({'message': 'Username should not be blank','success':False},status=HTTP_400_BAD_REQUEST)
+        if not password:
+            return Response({'message': 'Password should not be blank','success':False},status=HTTP_400_BAD_REQUEST)
+        if username and password:
 
-#     def retrieve(self, request, *args, **kwargs):
-#         invoice = self.get_object()
-#         serializer = self.get_serializer(invoice)
-#         invoice = Invoice.objects.get(invoice_id=invoice)
-#         YOUR_DOMAIN = "http://127.0.0.1:8000"
-#         checkout_session = stripe.checkout.Session.create(
-#             payment_method_types=['card'],
-#             line_items=[
-#                 {
-#                     'price_data': {
-#                         'currency': 'usd',
-#                         'unit_amount': invoice.amount,
-#                         'product_data': {
-#                             'name': invoice.invoice_id,
-#                             # 'images': ['https://i.imgur.com/EHyR2nP.png'],
-#                         },
-#                     },
-#                     'quantity': 1,
-#                 },
-#             ],
-#             metadata={
-#                 "invoice_id": invoice.invoice_id
-#             },
-#             mode='payment',
-#             success_url=YOUR_DOMAIN + '/success/',
-#             cancel_url=YOUR_DOMAIN + '/cancel/',
-#         )
-#         return JsonResponse({
-#             'id': checkout_session.id
-#         })
-# data = {
-#     'code': 200,
-#     'status': "OK",
-# }
-# data['response'] = serializer.data
-# return Response(data)
+            user = authenticate(username=username, password=password)
+            try:
+                token, created = Token.objects.get_or_create(user=user)
+                if user:
+                    if user.is_superuser==True:
+                        data = {
+                                'username': user.username,
+                                'token': token.key,
+                                'user_type': "SUPERUSER"
+                                }
+                        return Response({'success': True,'user-details':data}, status=HTTP_200_OK)
+            except:
+                return Response({'message': 'Invalid credentials','success':False},status=HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
