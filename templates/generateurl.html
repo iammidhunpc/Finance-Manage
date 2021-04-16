@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Pay Invoice</title>
+    <link rel="stylesheet" href="{% static '/css/style.css' %}">
+    <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+  </head>
+  <body>
+    <section>
+      <div class="product">
+        <div class="description">
+          <h3>Invoie ID : {{ invoice.invoice_id }}</h3>
+          <h5>Invoie Amount : {{ invoice.amount }} </h5>
+          <h5>Client Name : {{ invoice.client_name }} </h5>
+          <h5>Client Email : {{ invoice.client_email }} </h5>
+          <h5>Project Name: {{ invoice.project_name }} </h5>
+        </div>
+      </div>
+      link to pay : <a href="">{{short_link}}</a>
+    </section>
+    {% csrf_token %}
+  </body>
+</html>
