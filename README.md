@@ -1,5 +1,5 @@
 # Finance-Manage
-# Getting Started
+## Getting Started
 
 First clone the repository from Github and switch to the new directory:
 
@@ -28,6 +28,13 @@ You can now run the development server:
 
     $ python manage.py runserver
     Access the apis by login as superuser
+
+Tests
+To run the tests, cd into the directory where manage.py is:
+
+	$ python manage.py test
+
+For the Strips payment testing refer to the [basic test card numbers](https://stripe.com/docs/testing#cards) for more details.
 
 ### Main features
 
