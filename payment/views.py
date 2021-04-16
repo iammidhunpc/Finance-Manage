@@ -112,6 +112,7 @@ class CreateCheckoutSessionView(View):
 
 @csrf_exempt
 def stripe_webhook(request):
+    import pdb;pdb.set_trace()
     payload = request.body
     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
     event = None
@@ -169,6 +170,7 @@ def stripe_webhook(request):
 
 class StripeIntentView(View):
     def post(self, request, *args, **kwargs):
+        import pdb;pdb.set_trace()
         try:
             req_json = json.loads(request.body)
             customer = stripe.Customer.create(email=req_json['email'])
