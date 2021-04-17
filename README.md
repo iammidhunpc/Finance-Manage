@@ -34,7 +34,9 @@ To run the tests, cd into the directory where manage.py is:
 
 	$ python manage.py test
 
-For the Strips payment testing refer to the [basic test card numbers](https://stripe.com/docs/testing#cards) for more details.
+For the Stripe payment testing refer to the [basic test card numbers](https://stripe.com/docs/testing#cards) for more details.
+
+Api documentaion refer [postman doc](https://documenter.getpostman.com/view/5357735/TzJrByfy)
 
 ### Main features
 

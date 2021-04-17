@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
-
+import environ
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-*o-gdm-fs-9@+b7g7yuza(nu*)4-l4n12u^&-s2pxk3*cd*igp'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -151,10 +154,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = { 'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema' }
 
-STRIPE_PUBLIC_KEY = "pk_test_51IgO7DSCkW5DjS0CKrM6ZNoPtJRNdUC5aKbc3fdErhFCtjyPnswg1DAeEpvmRJa5XWCw5XTyhLupHAnc1RAsDuJR00UarLZmT6"
-STRIPE_SECRET_KEY = "sk_test_51IgO7DSCkW5DjS0CRvD41aUyUhnfsNgdYsihgG8unJKKNdwtMUW1FB9FUvny86rolLQIsvohKykuRly4dON28fXC00lHpNmgua"
+STRIPE_PUBLIC_KEY = env('STRIPE_PUBLIC_KEY')
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
+STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET')
 
-
-BITLY_LOGIN ='o_5q2vm8j80e'
-BITLY_API_KEY = 'fb89bf0ea1bee03de72dad0a93469d1c5622511b'
-STRIPE_WEBHOOK_SECRET = 'whsec_7sE9B2QU9YqG67inJuKxRxrLzNksBWV1'
+BITLY_LOGIN = env('BITLY_LOGIN')
+BITLY_API_KEY = env('BITLY_API_KEY')

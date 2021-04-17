@@ -1,5 +1,6 @@
 import uuid
 import requests
+from django.conf import settings
 from django.utils.text import slugify
 from rest_framework import serializers
 from payment.models import Invoice
@@ -10,8 +11,9 @@ def create_short_link(self,request, slug):
         domain = request.scheme + "://" + request.META['HTTP_HOST']
     except:
         domain = 'http://127.0.0.1:8000'
+    bitly_key = settings.BITLY_API_KEY
     header = {
-        "Authorization": "Bearer fb89bf0ea1bee03de72dad0a93469d1c5622511b",
+        "Authorization": "Bearer " + bitly_key,
         "Content-Type": "application/json"
     }
     long_url = domain + "/proceed-to-pay/" + slug + "/"
@@ -27,7 +29,6 @@ def create_short_link(self,request, slug):
     return short_link
 
 
-# Creating short link for payment
 class InvoiceSerializer(serializers.ModelSerializer):
     closed = serializers.BooleanField(required=False),
     short_link = serializers.CharField(allow_blank=True, required=False)

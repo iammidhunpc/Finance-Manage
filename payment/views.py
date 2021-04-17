@@ -128,15 +128,15 @@ class StripeIntentView(View):
         try:
             req_json = json.loads(request.body)
             customer = stripe.Customer.create(email=req_json['email'],
-              name='Test user',
-              address={
-                'line1': '510 Townsend St',
-                'postal_code': '98140',
-                'city': 'San Francisco',
-                'state': 'CA',
-                'country': 'US',
-              },
-            )
+                                              name='Test user',
+                                              address={
+                                                  'line1': '510 Townsend St',
+                                                  'postal_code': '98140',
+                                                  'city': 'San Francisco',
+                                                  'state': 'CA',
+                                                  'country': 'US',
+                                              },
+                                              )
             slug = self.kwargs["uidb64"]
             invoice = Invoice.objects.get(slug=slug)
             intent = stripe.PaymentIntent.create(
@@ -151,14 +151,14 @@ class StripeIntentView(View):
                 shipping={
                     'name': 'Test User',
                     'address': {
-                      'line1': '510 Townsend St',
-                      'postal_code': '98140',
-                      'city': 'San Francisco',
-                      'state': 'CA',
-                      'country': 'US',
+                        'line1': '510 Townsend St',
+                        'postal_code': '98140',
+                        'city': 'San Francisco',
+                        'state': 'CA',
+                        'country': 'US',
                     },
-                  },
-                )
+                },
+            )
             return JsonResponse({
                 'clientSecret': intent['client_secret']
             })
