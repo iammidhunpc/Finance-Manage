@@ -38,6 +38,13 @@ For the Stripe payment testing refer to the [basic test card numbers](https://st
 
 Api documentaion refer [postman doc](https://documenter.getpostman.com/view/5357735/TzJrByfy)
 
+#### WebHooks
+
+    Stripe uses webhooks to notify application when an event happens in the account.
+    In order to use webhooks, we need to:
+        1) Install Stripe CLI and test the endpoint using the [Stripe CLI](https://stripe.com/docs/stripe-cli)
+        2) Register the endpoint with Stripe refer [ endpoint register](https://dashboard.stripe.com/test/webhooks)
+
 ### Main features
 
 * Financial department owner/head can add/update an invoice record.

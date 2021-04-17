@@ -73,6 +73,7 @@ class CreateCheckoutSessionView(View):
 
 @csrf_exempt
 def stripe_webhook(request):
+    """customer get an email notification when payment is successfull"""
     payload = request.body
     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
     event = None
@@ -90,7 +91,6 @@ def stripe_webhook(request):
     # Handle the checkout.session.completed event
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
-
         customer_email = session["customer_details"]["email"]
         invoice_id = session["metadata"]["invoice_id"]
         invoice = Invoice.objects.get(invoice_id=invoice_id)
@@ -99,31 +99,32 @@ def stripe_webhook(request):
         invoice.save()
         send_mail(
             subject="Invoice Paid",
-            message=f"Thanks for the payment for invoice {invoice.invoice_id}",
+            message=f"Hi,  Payment for the invoice {invoice.invoice_id}received,Thanks - Team Financial department",
             recipient_list=[invoice.client_email],
-            from_email="matt@test.com"
+            from_email=settings.EMAIL_HOST_USER
         )
 
         # TODO - decide whether you want to send the file or the URL
 
     elif event["type"] == "payment_intent.succeeded":
         intent = event['data']['object']
-
         stripe_customer_id = intent["customer"]
         stripe_customer = stripe.Customer.retrieve(stripe_customer_id)
-
         customer_email = stripe_customer['email']
-        invoice_id = intent["metadata"]["invoice_id"]
-        invoice = Invoice.objects.get(invoice_id=invoice_id)
-        # setting invoice as closed
-        invoice.closed = True
-        invoice.save()
-        send_mail(
-            subject="Invoice Paid",
-            message=f"Thanks for the payment for invoice {invoice.invoice_id}",
-            recipient_list=[customer_email],
-            from_email="matt@test.com"
-        )
+        try:
+            invoice_id = intent["metadata"]["invoice_id"]
+            invoice = Invoice.objects.get(invoice_id=invoice_id)
+            # setting invoice as closed
+            invoice.closed = True
+            invoice.save()
+            send_mail(
+                subject="Invoice Paid",
+                message=f"Hi,  Payment for the invoice {invoice.invoice_id}received,Thanks - Team Financial department",
+                recipient_list=[customer_email],
+                from_email=settings.EMAIL_HOST_USER
+            )
+        except:
+            pass
     return HttpResponse(status=200)
 
 
