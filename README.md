@@ -42,8 +42,8 @@ Api documentaion refer [postman doc](https://documenter.getpostman.com/view/5357
 
     Stripe uses webhooks to notify application when an event happens in the account.
     In order to use webhooks, we need to:
-        1) Install Stripe CLI and test the endpoint using the [Stripe CLI](https://stripe.com/docs/stripe-cli)
-        2) Register the endpoint with Stripe refer [ endpoint register](https://dashboard.stripe.com/test/webhooks)
+1) Install Stripe CLI and test the endpoint using the [Stripe CLI](https://stripe.com/docs/stripe-cli)
+2) Register the endpoint with Stripe refer [ endpoint register](https://dashboard.stripe.com/test/webhooks)
 
 ### Main features
 
