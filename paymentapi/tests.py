@@ -34,30 +34,30 @@ class CreateInvoicetest(TestCase):
         print(self.response.data)
         self.assertEqual(self.response.status_code, status.HTTP_201_CREATED)
 
-    def test_api_can_get_a_bucketlist(self):
-        """Test the api can get a given bucketlist."""
-        bucketlist = Invoice.objects.get()
+    def test_api_can_get_a_invoicelist(self):
+        """Test the api can get a given invoicelist."""
+        invoicelist = Invoice.objects.get()
         response = self.client.get(
-            reverse('details', kwargs={'invoice_id': bucketlist.invoice_id}),
+            reverse('details', kwargs={'invoice_id': invoicelist.invoice_id}),
             format="json", HTTP_AUTHORIZATION=self.token)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertContains(response, bucketlist)
+        self.assertContains(response, invoicelist)
 
-    def test_api_can_update_bucketlist(self):
-        """Test the api can update a given bucketlist."""
-        bucketlist = Invoice.objects.get()
-        change_bucketlist = {'project_name': 'Test Project'}
+    def test_api_can_update_invoicelist(self):
+        """Test the api can update a given invoicelist."""
+        invoicelist = Invoice.objects.get()
+        change_invoicelist = {'project_name': 'Test Project'}
         res = self.client.patch(
-            reverse('details', kwargs={'invoice_id': bucketlist.invoice_id}),
-            change_bucketlist, format='json'
+            reverse('details', kwargs={'invoice_id': invoicelist.invoice_id}),
+            change_invoicelist, format='json'
         )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    def test_api_can_delete_bucketlist(self):
-        """Test the api can delete a bucketlist."""
-        bucketlist = Invoice.objects.get()
+    def test_api_can_delete_invoicelist(self):
+        """Test the api can delete a invoicelist."""
+        invoicelist = Invoice.objects.get()
         response = self.client.delete(
-            reverse('details', kwargs={'invoice_id': bucketlist.invoice_id}),
+            reverse('details', kwargs={'invoice_id': invoicelist.invoice_id}),
             format='json',
             follow=True)
         self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
