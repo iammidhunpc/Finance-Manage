@@ -15,7 +15,8 @@ from payment.models import Invoice
 
 
 class InvoiceViewSet(ModelViewSet):
-    """list all invoices"""
+    """This class returns all invoices"""
+
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
     permission_classes = [IsAuthenticated]
@@ -24,6 +25,7 @@ class InvoiceViewSet(ModelViewSet):
 
 class InvoiceCreateView(generics.ListCreateAPIView):
     """This class handles the http POST requests."""
+
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
     permission_classes = [IsAuthenticated]
@@ -44,7 +46,7 @@ class InvoiceDetailsView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class GetUserTokenView(APIView):
-    """Returns user token"""
+    """This class returns user token"""
 
     def get(self, request, *args, **kwargs):
         username = request.GET.get('username')

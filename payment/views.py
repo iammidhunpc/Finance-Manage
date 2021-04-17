@@ -12,14 +12,17 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 class SuccessView(TemplateView):
+    """This class handles the payment success page."""
     template_name = "success.html"
 
 
 class CancelView(TemplateView):
+    """This class handles the payment cancel page."""
     template_name = "cancel.html"
 
 
 class ProceedToPayView(TemplateView):
+    """This class is associated with listing the payment details"""
     template_name = "proceedtopay.html"
 
     def get_context_data(self, **kwargs):
@@ -34,6 +37,7 @@ class ProceedToPayView(TemplateView):
 
 
 class CreateCheckoutSessionView(View):
+    """This class is associated with the payment checkout"""
     def post(self, request, *args, **kwargs):
         slug = self.kwargs["uidb64"]
         invoice = Invoice.objects.get(slug=slug)
